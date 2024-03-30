@@ -34,10 +34,10 @@ namespace PatternSelection {
 }
 
 void Pattern::update(long deltaTime) {}
-void Pattern::transition() {}
-HSVColor Pattern::getPixel(int pixelIndex) {
-    return generateColor(0, 0, 0);
-}
+void Pattern::transitionIn() {}
+void Pattern::transitionOut() {}
+
+void Pattern::getPixel(int pixelIndex, HSVColor* color) {}
 
 SolidPattern::SolidPattern(HSVColor color) {
     this->setColor(color);
@@ -45,10 +45,13 @@ SolidPattern::SolidPattern(HSVColor color) {
 
 void SolidPattern::update(long deltaTime) {}
 
-void SolidPattern::transition() {}
+void SolidPattern::transitionIn() {}
+void SolidPattern::transitionOut() {}
 
-HSVColor SolidPattern::getPixel(int pixelIndex) {
-    return this->getColor();
+void SolidPattern::getPixel(int pixelIndex, HSVColor* color) {
+    color->hue = this->color.hue;
+    color->saturation = this->color.saturation;
+    color->value = this->color.value;
 }
 
 void SolidPattern::setColor(HSVColor newColor) {
@@ -59,75 +62,89 @@ HSVColor SolidPattern::getColor() {
     return this->color;
 }
 
-FirePattern::FirePattern(HSVColor litColor, HSVColor unlitColor) {
+
+FirePattern::FirePattern(HSVColor litColor, HSVColor unlitColor, int pixelNumber) {
     this->litColor = litColor,
     this->unlitColor = unlitColor;
+    this->extraEnergy = maxEnergy;
+    this->pixelNum = pixelNumber;
 }
 
-void FirePattern::transition() {
-    this->extraEnergy = maxEnergy;
+void FirePattern::transitionIn() {
     this->flares[maxFlares] = {};
-    Flare* flares = this->flares;
+}
 
-    for(int flareIndex = 0; flareIndex < maxFlares; flareIndex++) {
-        Flare flare;
-
-        flare.energy = 0;
-        flare.position = 0;
-
-        flares[flareIndex] = flare;
-    }
+void FirePattern::transitionOut() {
+    delete this->flares;
 }
 
 void FirePattern::update(long deltaTime) {
-    Flare* flares = this->flares;
+    Flare* flares = this->getFlares();
 
-    double energyLoss = deltaTime / flareLifespan;
+    double 
+        energyLoss = (double) deltaTime / flareLifespan,
+        extraEnergy = this->getExtraEnergy(),
+        deltaPosition = (double) deltaTime * flareSpeed,
+        newFlareEnergy
+    ;
+
 
     for(int flareIndex = 0; flareIndex < maxFlares; flareIndex++) {
         Flare& flare = flares[flareIndex];
 
-        double newFlareEnergy = max(flare.energy - (double) deltaTime / flareLifespan, 0);
+        newFlareEnergy = max(flare.energy - energyLoss, 0);
 
-        this->extraEnergy += flare.energy - newFlareEnergy;
+        extraEnergy += flare.energy - newFlareEnergy;
 
         flare.energy = newFlareEnergy;
-    }
-
-    for(int flareIndex = 0; flareIndex < maxFlares; flareIndex++) {
-        Flare& flare = flares[flareIndex];
 
         if(0 >= flare.energy) {
-            flare.energy = random(0, 100) / 100.0 * this->extraEnergy;
+            flare.energy = random(0, 100) / 100.0 * extraEnergy;
 
-            this->extraEnergy -= flare.energy;
+            extraEnergy -= flare.energy;
 
             flare.position = 0;
         }
 
-        flare.position += flare.energy * (double) deltaTime * flareSpeed;
-
-        // Serial.println(flare.position);
+        flare.position += flare.energy * deltaPosition;
     }
+
+    this->setExtraEnergy(extraEnergy);
 }
 
-HSVColor FirePattern::getPixel(int pixelIndex) {
-    Flare* flares = this->flares;
+void FirePattern::getPixel(int pixelIndex, HSVColor* color) {
+    Flare* flares = this->getFlares();
 
     double lightAbundance = 0;
 
     for(int flareIndex = 0; flareIndex < maxFlares; flareIndex++) {
         Flare& flare = flares[flareIndex];
+
+        double position = flare.position;
+
+        if(flareIndex & 1) {
+            position = this->pixelNum - position;
+        }
         // Serial.println(flare.position);
 
-        lightAbundance += lightDiffusion / (1 + abs(pixelIndex - flare.position)) * flare.energy;
+        lightAbundance += lightDiffusion / (1 + abs(pixelIndex - position)) * flare.energy;
     }
 
-    HSVColor color;
+    double divisor = (lightAbundance + 1.0);
 
-    color.hue = (this->unlitColor.hue + this->litColor.hue * lightAbundance) / (lightAbundance + 1.0);
-    color.saturation = (this->unlitColor.saturation + this->litColor.saturation * lightAbundance) / (lightAbundance + 1.0);
-    color.value = (this->unlitColor.value + this->litColor.value * lightAbundance) / (lightAbundance + 1.0);
+    color->hue = (this->unlitColor.hue + this->litColor.hue * lightAbundance) / divisor;
+    color->saturation = (this->unlitColor.saturation + this->litColor.saturation * lightAbundance) / divisor;
+    color->value = (this->unlitColor.value + this->litColor.value * lightAbundance) / divisor;
+}
 
-    return color;
+FirePattern::Flare* FirePattern::getFlares() {
+    return this->flares;
+}
+
+double FirePattern::getExtraEnergy() {
+    return this->extraEnergy;
+}
+
+void FirePattern::setExtraEnergy(double energy) {
+    this->extraEnergy = energy;
 }

@@ -21,8 +21,9 @@ namespace PatternSelection {
 class Pattern {
     public:
         virtual void update(long deltaTime);
-        virtual void transition();
-        virtual HSVColor getPixel(int pixelIndex);
+        virtual void transitionIn();
+        virtual void transitionOut();
+        virtual void getPixel(int pixelIndex, HSVColor* color);
 };
 
 class SolidPattern : public Pattern {
@@ -30,9 +31,10 @@ class SolidPattern : public Pattern {
 
         void update(long deltaTime) override;
 
-        void transition() override;
+        void transitionIn() override;
+        void transitionOut() override;
 
-        HSVColor getPixel(int pixelIndex) override;
+        void getPixel(int pixelIndex, HSVColor* color) override;
 
         SolidPattern(HSVColor color);
 
@@ -44,21 +46,22 @@ class SolidPattern : public Pattern {
         HSVColor color;
 };
 
-#define maxFlares 5
-#define maxEnergy 5
-#define flareLifespan 5
-#define flareSpeed 0.05
-#define lightDiffusion 0.5
+#define maxFlares 10
+#define maxEnergy 20
+#define flareLifespan 6.0
+#define flareSpeed 0.01
+#define lightDiffusion 0.2
 
 class FirePattern : public Pattern {
     public:
-        FirePattern(HSVColor litColor, HSVColor unlitColor);
+        FirePattern(HSVColor litColor, HSVColor unlitColor, int pixelNumber);
 
-        void transition() override;
+        void transitionIn() override;
+        void transitionOut() override;
 
         void update(long deltaTime) override;
 
-        HSVColor getPixel(int pixelIndex) override;
+        void getPixel(int pixelIndex, HSVColor* color) override;
 
     private:
         HSVColor unlitColor;
@@ -73,6 +76,11 @@ class FirePattern : public Pattern {
 
         Flare flares[maxFlares];
 
-        double totalEnergy();
+        double getExtraEnergy();
+        void setExtraEnergy(double energy);
+
+        Flare* getFlares();
+
+        unsigned int pixelNum;
 };
 #endif

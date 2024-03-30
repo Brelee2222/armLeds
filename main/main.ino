@@ -22,7 +22,7 @@
 
 Pattern* patterns[2] = {
     new SolidPattern(generateColor(0, 255, 255)),
-    new FirePattern(generateColor(4281, 254, 100), generateColor(0, 255, 100))
+    new FirePattern(generateColor(7281, 254, 100), generateColor(0, 255, 5), LED_COUNT)
 };
 
 Pattern& currentPattern = *patterns[1];
@@ -39,44 +39,47 @@ void setup()
 
     leds.begin();
 
-    currentPattern.transition();
+    currentPattern.transitionIn();
     Serial.begin(9600);
 }
 // SolidPattern currentPattern = SolidPattern(generateColor(125, 255, 255));
 
-long lastTime = 0;
+unsigned long lastTime = 0;
 
 void loop()
 {
-    long currentTime = millis();
-    long deltaTime = currentTime - lastTime;
+    unsigned long currentTime = millis();
+    unsigned long deltaTime = currentTime - lastTime;
     
     HSVTune::update();
 
     if(PatternSelection::update()) {
-        currentPattern = *patterns[PatternSelection::selectedPatternIndex];
+        currentPattern.transitionOut();
 
-        currentPattern.transition();
+        currentPattern = *patterns[PatternSelection::selectedPatternIndex];
+        
+        currentPattern.transitionIn();
     }
 
     currentPattern.update(deltaTime);
 
     HSVColor hsvModifier = HSVTune::getColorModifier();
+    HSVColor pixelPatterColor;
 
-    for(int ledIndex = leds.numPixels()-1; ledIndex >= 0; ledIndex--) {
-        HSVColor pixelPatterColor = currentPattern.getPixel(ledIndex);
+    for(int ledIndex = LED_COUNT-1; ledIndex >= 0; ledIndex--) {
+        currentPattern.getPixel(ledIndex, &pixelPatterColor);
 
-        // Serial.println(pixelPatterColor.hue);
+        HSVTransform::transformColor(&pixelPatterColor, hsvModifier);
 
-        HSVColor pixelColor = HSVTransform::transformColor(pixelPatterColor, hsvModifier);
-
-        // Serial.println(pixelColor.hue);
-
-        leds.setPixelColor(ledIndex, leds.ColorHSV(pixelColor.hue, pixelColor.saturation, pixelColor.value));
+        leds.setPixelColor(ledIndex, leds.ColorHSV(pixelPatterColor.hue, pixelPatterColor.saturation, pixelPatterColor.value));
     }
+
+    delete &pixelPatterColor;
+    delete &hsvModifier;
 
     leds.show();
 
     lastTime = currentTime;
-    delay(frameDelay);
+
+    delay(max((long) (frameDelay + currentTime - millis()), 0));
 }

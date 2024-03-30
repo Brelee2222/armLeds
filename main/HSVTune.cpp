@@ -14,20 +14,10 @@ HSVColor generateColor(short hue, char saturation, char value) {
 }
 
 namespace HSVTransform {
-    HSVColor transformColor(HSVColor color, HSVColor transform) {
-        HSVColor newColor;
-        
-        // Serial.println(transform.hue);
-
-        newColor.hue = color.hue + transform.hue;
-        // newColor.saturation = sqrt(color.saturation * transform.saturation);
-        // newColor.saturation = min(color.saturation, transform.saturation);
-        newColor.saturation = color.saturation * transform.saturation / 255;
-        // newColor.value = sqrt(color.value * transform.value);
-        // newColor.value = min(color.value, transform.value);
-        newColor.value = color.value * transform.value / 255;
-
-        return newColor;
+    void transformColor(HSVColor* color, HSVColor transform) {        
+        color->hue += transform.hue;
+        color->saturation *= transform.saturation / 255;
+        color->value *= transform.value / 255;
     }
 }
 
