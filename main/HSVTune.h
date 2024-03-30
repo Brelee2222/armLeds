@@ -12,7 +12,7 @@ struct HSVColor {
 HSVColor generateColor(short hue, char saturation, char value);
 
 namespace HSVTransform {
-    void transformColor(HSVColor* color, HSVColor transform);
+    void transformColor(HSVColor *color, HSVColor transform);
 }
 
 namespace HSVTune {

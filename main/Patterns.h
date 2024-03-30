@@ -21,22 +21,23 @@ namespace PatternSelection {
 class Pattern {
     public:
         virtual void update(long deltaTime);
-        virtual void transitionIn();
-        virtual void transitionOut();
-        virtual void getPixel(int pixelIndex, HSVColor* color);
+        virtual void transition();
+        // virtual void transitionIn();
+        // virtual void transitionOut();
+        virtual void getPixel(int pixelIndex, HSVColor* result);
 };
 
 class SolidPattern : public Pattern {
     public:
+        SolidPattern(HSVColor color);
 
         void update(long deltaTime) override;
 
-        void transitionIn() override;
-        void transitionOut() override;
+        void transition() override;
+        // void transitionIn() override;
+        // void transitionOut() override;
 
-        void getPixel(int pixelIndex, HSVColor* color) override;
-
-        SolidPattern(HSVColor color);
+        void getPixel(int pixelIndex, HSVColor* result) override;
 
         void setColor(HSVColor color);
 
@@ -46,41 +47,57 @@ class SolidPattern : public Pattern {
         HSVColor color;
 };
 
-#define maxFlares 10
-#define maxEnergy 20
-#define flareLifespan 6.0
-#define flareSpeed 0.01
-#define lightDiffusion 0.2
+#define MAX_FLARES 5
+#define MAX_ENERGY 5
+#define FLARE_LIFESPAN 5
+#define FLARE_SPEED 0.05
+#define LIGHT_DIFFUSION 0.5
 
 class FirePattern : public Pattern {
     public:
-        FirePattern(HSVColor litColor, HSVColor unlitColor, int pixelNumber);
+        FirePattern(HSVColor litColor, HSVColor unlitColor, int ledCount);
 
-        void transitionIn() override;
-        void transitionOut() override;
+        void transition() override;
+        // void transitionIn() override;
+        // void transitionOut() override;
 
         void update(long deltaTime) override;
 
-        void getPixel(int pixelIndex, HSVColor* color) override;
+        void getPixel(int pixelIndex, HSVColor* result) override;
 
     private:
-        HSVColor unlitColor;
-        HSVColor litColor;
-
-        double extraEnergy;
-
         struct Flare {
             double energy;
             double position;
         };
+        HSVColor unlitColor;
+        HSVColor litColor;
+        int ledCount;
+        double extraEnergy;
 
-        Flare flares[maxFlares];
+        double totalEnergy();
 
-        double getExtraEnergy();
-        void setExtraEnergy(double energy);
+        Flare *getFlares();
 
-        Flare* getFlares();
+        Flare flares[MAX_FLARES];
+};
 
-        unsigned int pixelNum;
+#define PROBE_DIFFUSION 1
+#define PROBE_SPEED 0.02
+class ProbePattern : public Pattern {
+    public:
+        ProbePattern(HSVColor color, int ledCount);
+
+        void update(long deltaTime) override;
+
+        void transition() override;
+        // void transitionIn() override;
+        // void transitionOut() override;
+
+        void getPixel(int pixelIndex, HSVColor* result) override;
+
+    private:
+        HSVColor color;
+        int ledCount;
 };
 #endif
