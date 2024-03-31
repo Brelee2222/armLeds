@@ -54,12 +54,8 @@ void FirePattern::transitionOut() {
     free(&this->extraEnergy);
 }
 
-FirePattern::Flare* FirePattern::getFlares() {
-    return this->flares;
-};
-
 void FirePattern::update(long deltaTime) {
-    Flare* flares = this->getFlares();
+    Flare* flares = this->flares;
 
     double energyLoss = deltaTime / FLARE_LIFESPAN;
 
@@ -94,7 +90,7 @@ void FirePattern::update(long deltaTime) {
 
 void FirePattern::getPixel(int pixelIndex, HSVColor* result) {
 
-    Flare* flares = this->getFlares();
+    Flare* flares = this->flares;
 
     pixelIndex = (this->ledCount / 2) - abs(pixelIndex - (this->ledCount / 2));
 

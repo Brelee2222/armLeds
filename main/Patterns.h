@@ -62,10 +62,6 @@ class FirePattern : public Pattern {
         int ledCount;
         double extraEnergy;
 
-        double totalEnergy();
-
-        Flare *getFlares();
-
         Flare flares[MAX_FLARES];
 };
 
