@@ -4,26 +4,12 @@
 #ifndef PATTERNS_H
 #define PATTERNS_H
 
-namespace PatternSelection {
-    extern unsigned int selectedPatternIndex;
-
-    /**
-     * @brief Initializes the pins connected to the DIP switch being used to get the pattern index/number.
-     * 
-     * @param bitPins list of pins connected to the DIP switch
-     * @param bits number of pins connected to the switch
-     */
-    void begin(char bits, char* bitPins);
-
-    bool update();
-}
-
 class Pattern {
     public:
         virtual void update(long deltaTime);
-        virtual void transition();
-        // virtual void transitionIn();
-        // virtual void transitionOut();
+        // virtual void transition();
+        virtual void transitionIn();
+        virtual void transitionOut();
         virtual void getPixel(int pixelIndex, HSVColor* result);
 };
 
@@ -33,9 +19,9 @@ class SolidPattern : public Pattern {
 
         void update(long deltaTime) override;
 
-        void transition() override;
-        // void transitionIn() override;
-        // void transitionOut() override;
+        // void transition() override;
+        void transitionIn() override;
+        void transitionOut() override;
 
         void getPixel(int pixelIndex, HSVColor* result) override;
 
@@ -47,19 +33,20 @@ class SolidPattern : public Pattern {
         HSVColor color;
 };
 
+
 #define MAX_FLARES 5
-#define MAX_ENERGY 5
+#define MAX_ENERGY 2.5
 #define FLARE_LIFESPAN 5
-#define FLARE_SPEED 0.05
+#define FLARE_SPEED 0.1
 #define LIGHT_DIFFUSION 0.5
 
 class FirePattern : public Pattern {
     public:
         FirePattern(HSVColor litColor, HSVColor unlitColor, int ledCount);
 
-        void transition() override;
-        // void transitionIn() override;
-        // void transitionOut() override;
+        // void transition() override;
+        void transitionIn() override;
+        void transitionOut() override;
 
         void update(long deltaTime) override;
 
@@ -90,9 +77,9 @@ class ProbePattern : public Pattern {
 
         void update(long deltaTime) override;
 
-        void transition() override;
-        // void transitionIn() override;
-        // void transitionOut() override;
+        // void transition() override;
+        void transitionIn() override;
+        void transitionOut() override;
 
         void getPixel(int pixelIndex, HSVColor* result) override;
 

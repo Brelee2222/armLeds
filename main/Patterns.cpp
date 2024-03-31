@@ -2,39 +2,9 @@
 #include "HSVTune.h"
 #include <Arduino.h>
 
-namespace PatternSelection {
-    char* bitPins;
-    char bits;
-
-    unsigned int selectedPatternIndex = 0;
-
-    /**
-     * @brief Initializes the pins connected to the DIP switch being used to get the pattern index/number.
-     * 
-     * @param bitPins list of pins connected to the DIP switch
-     * @param bits number of pins connected to the switch
-     */
-    void begin(char pinNumber, char* pins) {        
-        char bitPins[bits = pinNumber] = {};
-
-        for(int i = 0; i < pinNumber; i++) {
-            pinMode(bitPins[i] = pins[i], INPUT_PULLUP);
-        }
-    }
-
-    bool update() {
-        unsigned int newPatternIndex = 0;
-
-        for(int i = bits - 1; i >= 0; i--) {
-            newPatternIndex = (newPatternIndex << 1) | digitalRead(bitPins[i]);
-        }
-
-        return newPatternIndex != (selectedPatternIndex = newPatternIndex);
-    }
-}
-
 void Pattern::update(long deltaTime) {}
-void Pattern::transition() {}
+void Pattern::transitionIn() {}
+void Pattern::transitionOut() {}
 void Pattern::getPixel(int pixelIndex, HSVColor* result) {}
 
 SolidPattern::SolidPattern(HSVColor color) {
@@ -43,7 +13,8 @@ SolidPattern::SolidPattern(HSVColor color) {
 
 void SolidPattern::update(long deltaTime) {}
 
-void SolidPattern::transition() {}
+void SolidPattern::transitionIn() {}
+void SolidPattern::transitionOut() {}
 
 void SolidPattern::getPixel(int pixelIndex, HSVColor* result) {
     *result = this->getColor();
@@ -63,21 +34,24 @@ FirePattern::FirePattern(HSVColor litColor, HSVColor unlitColor, int ledCount) {
     this->ledCount = ledCount;
 }
 
-void FirePattern::transition() {
+void FirePattern::transitionIn() {
     this->extraEnergy = MAX_ENERGY;
     this->flares[MAX_FLARES] = {};
 
     Flare* flares = this->flares;
 
     for(int flareIndex = 0; flareIndex < MAX_FLARES; flareIndex++) {
-        Flare& flare = flares[flareIndex];
-        // Flare flare;
+        // this->flares[flareIndex] = Flare();
 
-        flare.energy = 0;
-        flare.position = 0;
-        
-        // flares[flareIndex] = flare;
+        Flare& flares = this->flares[flareIndex];
+
+        flares.energy = flares.position = 0;
     }
+}
+
+void FirePattern::transitionOut() {
+    free(this->flares);
+    free(&this->extraEnergy);
 }
 
 FirePattern::Flare* FirePattern::getFlares() {
@@ -146,7 +120,8 @@ ProbePattern::ProbePattern(HSVColor color, int ledCount) {
 
 void ProbePattern::update(long deltaTime) {}
 
-void ProbePattern::transition() {}
+void ProbePattern::transitionIn() {}
+void ProbePattern::transitionOut() {}
 
 void ProbePattern::getPixel(int pixelIndex, HSVColor* result) {
     int position = (unsigned int) (millis() * PROBE_SPEED) % this->ledCount;

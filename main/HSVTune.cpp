@@ -3,15 +3,17 @@
 
 struct HSVColor;
 
-HSVColor generateColor(short hue, char saturation, char value) {
-    HSVColor color;
+HSVColor::HSVColor(
+    unsigned short hue,
+    unsigned char saturation,
+    unsigned char value
+) {
+    this->hue = hue;
+    this->saturation = saturation;
+    this->value = value;
+};
 
-    color.hue = hue,
-    color.saturation = saturation,
-    color.value = value;
-
-    return color;
-}
+HSVColor::HSVColor() {};
 
 namespace HSVTransform {
     void transformColor(HSVColor *color, HSVColor transform) {
@@ -21,28 +23,24 @@ namespace HSVTransform {
         color->hue += transform.hue;
         // newColor.saturation = sqrt(color.saturation * transform.saturation);
         // newColor.saturation = min(color.saturation, transform.saturation);
-        color->saturation *= transform.saturation / 255;
+        color->saturation *= transform.saturation / 255.0;
         // newColor.value = sqrt(color.value * transform.value);
         // newColor.value = min(color.value, transform.value);
-        color->value *= transform.value / 255;
+        color->value *= transform.value / 255.0;
     }
 }
 
 namespace HSVTune {
 
-    char huePin;
-    char satPin;
-    char valPin;
-
     short hueOffset = 0;
 
-    void begin(char hue_pin, char saturation_pin, char value_pin) {
-        pinMode(huePin = hue_pin, INPUT_PULLUP);
-        pinMode(satPin = saturation_pin, INPUT_PULLUP);
-        pinMode(valPin = value_pin, INPUT_PULLUP);
+    void begin() {
+        pinMode(HUE_PIN, INPUT_PULLUP);
+        pinMode(SAT_PIN, INPUT_PULLUP);
+        pinMode(VAL_PIN, INPUT_PULLUP);
 
         if(USE_HUE_OFFSET)
-            hueOffset = ((double) (analogRead(hue_pin) - 7) / 200 * 255) * (1 << 8);
+            hueOffset = ((double) (analogRead(HUE_PIN) - 7) / 200.0 * 255) * (1 << 8);
     }
 
     double __halfLife = 0;
@@ -68,9 +66,9 @@ namespace HSVTune {
 
         double divisor = __halfLife + deltaTime;
 
-        hue = (hue * __halfLife + (analogRead(huePin) - 7) * deltaTime) / divisor;
-        sat = (sat * __halfLife + (analogRead(satPin) - 7) * deltaTime) / divisor;
-        val = (val * __halfLife + (analogRead(valPin) - 7) * deltaTime) / divisor;
+        hue = (hue * __halfLife + (analogRead(HUE_PIN) - 7) * deltaTime) / divisor;
+        sat = (sat * __halfLife + (analogRead(SAT_PIN) - 7) * deltaTime) / divisor;
+        val = (val * __halfLife + (analogRead(VAL_PIN) - 7) * deltaTime) / divisor;
     }
 
     unsigned short getHueModifier() {
@@ -85,12 +83,10 @@ namespace HSVTune {
     }
 
     HSVColor getColorModifier() {
-        HSVColor modColor;
-        
-        modColor.hue = getHueModifier();
-        modColor.saturation = getSaturationModifier();
-        modColor.value = getValueModifier();
-
-        return modColor;
+        return HSVColor(
+            getHueModifier(), 
+            getSaturationModifier(), 
+            getValueModifier()
+        );
     }
 }
