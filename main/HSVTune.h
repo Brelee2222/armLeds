@@ -7,6 +7,8 @@
 #define SAT_PIN A4
 #define VAL_PIN A5
 
+#define TRANSITION_HALFLIFE 400
+
 struct HSVColor {
     HSVColor(
         unsigned short hue,
@@ -27,15 +29,6 @@ namespace HSVTransform {
 
 namespace HSVTune {
     void begin();
-
-    /**
-     * @brief Set the half life of the analog pins to transition from its previous value to the current.
-     * 
-     * @param millis The half life in milliseconds.
-     */
-    void setHalfLife(double millis);
-
-    double getHalfLife();
 
     void update();
 

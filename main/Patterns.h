@@ -6,18 +6,22 @@
 
 class Pattern {
     public:
-        virtual void update(long deltaTime);
+        static void setLEDCount(int ledCount);    
+        static int getLEDCount();  
+        virtual void update();
         // virtual void transition();
         virtual void transitionIn();
         virtual void transitionOut();
-        virtual void getPixel(int pixelIndex, HSVColor* result);
+        virtual void getPixel(int pixelIndex, HSVColor* result);  
+    private:
+        static int ledCount;
 };
 
 class SolidPattern : public Pattern {
     public:
         SolidPattern(HSVColor color);
 
-        void update(long deltaTime) override;
+        void update() override;
 
         // void transition() override;
         void transitionIn() override;
@@ -42,13 +46,13 @@ class SolidPattern : public Pattern {
 
 class FirePattern : public Pattern {
     public:
-        FirePattern(HSVColor litColor, HSVColor unlitColor, int ledCount);
+        FirePattern(HSVColor litColor, HSVColor unlitColor);
 
         // void transition() override;
         void transitionIn() override;
         void transitionOut() override;
 
-        void update(long deltaTime) override;
+        void update() override;
 
         void getPixel(int pixelIndex, HSVColor* result) override;
 
@@ -57,10 +61,12 @@ class FirePattern : public Pattern {
             double energy;
             double position;
         };
+
+        double extraEnergy;
+        unsigned long lastTime;
+
         HSVColor unlitColor;
         HSVColor litColor;
-        int ledCount;
-        double extraEnergy;
 
         Flare flares[MAX_FLARES];
 };
@@ -69,9 +75,9 @@ class FirePattern : public Pattern {
 #define PROBE_SPEED 0.02
 class ProbePattern : public Pattern {
     public:
-        ProbePattern(HSVColor color, int ledCount);
+        ProbePattern(HSVColor color);
 
-        void update(long deltaTime) override;
+        void update() override;
 
         // void transition() override;
         void transitionIn() override;
@@ -81,6 +87,14 @@ class ProbePattern : public Pattern {
 
     private:
         HSVColor color;
-        int ledCount;
+};
+
+#define RAINBOW_SPEED 0.02
+class RainbowPattern : public Pattern {
+    public:
+        void update() override;
+        void transitionIn() override;
+        void transitionOut() override;
+        void getPixel(int pixelIndex, HSVColor* result) override;
 };
 #endif

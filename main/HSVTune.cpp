@@ -31,8 +31,10 @@ namespace HSVTransform {
 }
 
 namespace HSVTune {
-
     short hueOffset = 0;
+    float hue = 0;
+    float sat = 0;
+    float val = 0;
 
     void begin() {
         pinMode(HUE_PIN, INPUT_PULLUP);
@@ -43,32 +45,17 @@ namespace HSVTune {
             hueOffset = ((double) (analogRead(HUE_PIN) - 7) / 200.0 * 255) * (1 << 8);
     }
 
-    double __halfLife = 0;
-
-    void setHalfLife(double millis) {
-        __halfLife = millis;
-    }
-    
-    double getHalfLife() {
-        return __halfLife;
-    }
-
-
-    float hue = 0;
-    float sat = 0;
-    float val = 0;
-
     long previousTime = 0;
 
     void update() {
         double deltaTime = millis() - previousTime;
         previousTime = millis();
 
-        double divisor = __halfLife + deltaTime;
+        double divisor = TRANSITION_HALFLIFE + deltaTime;
 
-        hue = (hue * __halfLife + (analogRead(HUE_PIN) - 7) * deltaTime) / divisor;
-        sat = (sat * __halfLife + (analogRead(SAT_PIN) - 7) * deltaTime) / divisor;
-        val = (val * __halfLife + (analogRead(VAL_PIN) - 7) * deltaTime) / divisor;
+        hue = (hue * TRANSITION_HALFLIFE + (analogRead(HUE_PIN) - 7) * deltaTime) / divisor;
+        sat = (sat * TRANSITION_HALFLIFE + (analogRead(SAT_PIN) - 7) * deltaTime) / divisor;
+        val = (val * TRANSITION_HALFLIFE + (analogRead(VAL_PIN) - 7) * deltaTime) / divisor;
     }
 
     unsigned short getHueModifier() {

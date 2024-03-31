@@ -12,26 +12,24 @@
 
 #define BRIGHTNESS 230
 
-#define TRANSITION_HALFLIFE 400
-
 #define frameDelay 10
 
-Pattern* patterns[3] = {
+Pattern* patterns[4] = {
     new SolidPattern(HSVColor(0, 255, 255)),
-    new FirePattern(HSVColor(7281, 254, 255), HSVColor(0, 255, 15), LED_COUNT),
-    new ProbePattern(HSVColor(0, 255, 255), LED_COUNT),
+    new FirePattern(HSVColor(7281, 254, 255), HSVColor(0, 255, 15)),
+    new ProbePattern(HSVColor(0, 255, 255)),
+    new RainbowPattern()
 };
 
-Pattern& currentPattern = *patterns[1];
+Pattern& currentPattern = *patterns[0];
 
 Adafruit_NeoPixel leds(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 void setup()
 {
-    
-    HSVTune::begin();
+    Pattern::setLEDCount(LED_COUNT);
 
-    HSVTune::setHalfLife(TRANSITION_HALFLIFE);
+    HSVTune::begin();
 
     leds.begin();
 
@@ -41,8 +39,6 @@ void setup()
 }
 // SolidPattern currentPattern = SolidPattern(generateColor(125, 255, 255));
 
-long lastTime = 0;
-
 void loop()
 {
     // void* ptr = malloc(1);
@@ -51,12 +47,9 @@ void loop()
 
     // free(ptr);
 
-    long deltaTime = millis() - lastTime;
-    lastTime += deltaTime;
-    
     HSVTune::update();
 
-    currentPattern.update(deltaTime);
+    currentPattern.update();
 
     HSVColor hsvModifier = HSVTune::getColorModifier();
     HSVColor pixelPatterColor;
