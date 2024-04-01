@@ -1,22 +1,47 @@
 #include "Patterns.h"
 
-#ifndef LED_CONTROL 
-#define LED_CONTROL
-extern int BIT_PINS[5];
+#define LED_PIN 2
 
-namespace LEDSelection {
+#define LED_COUNT 75
+
+class LEDMenu {
+    public:
+        LEDMenu();
+
+        virtual void update();
+        virtual void display();
+        
+    private:
+        LEDMenu* parent;
+        static LEDMenu* currentMenu; 
+
+    protected:
+        static void back();
+};
+
+namespace LEDControl {
+    void begin();
+
+    void update();
+
+    void display();
+}
+
+namespace PatternSelection {
+    // extern Pattern* patterns[4];
     extern Pattern* patterns[4];
 
-    extern Pattern& currentPattern; //starts off on cool fire pattern in case this fails
-
-    extern int currentPatternIndex;
+    extern Pattern& currentPattern;
 
     void begin();
 
     void update();
 
     void transitionPattern(Pattern& newPattern);
+}
+
+namespace SwitchInterface {
+    void begin();
 
     unsigned char getBitsValue(int bits);
 }
-#endif

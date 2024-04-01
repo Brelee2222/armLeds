@@ -21,12 +21,6 @@ class SolidPattern : public Pattern {
     public:
         SolidPattern(HSVColor color);
 
-        void update() override;
-
-        // void transition() override;
-        void transitionIn() override;
-        void transitionOut() override;
-
         void getPixel(int pixelIndex, HSVColor* result) override;
 
         void setColor(HSVColor color);
@@ -76,12 +70,7 @@ class FirePattern : public Pattern {
 class ProbePattern : public Pattern {
     public:
         ProbePattern(HSVColor color);
-
-        void update() override;
-
         // void transition() override;
-        void transitionIn() override;
-        void transitionOut() override;
 
         void getPixel(int pixelIndex, HSVColor* result) override;
 
@@ -92,9 +81,6 @@ class ProbePattern : public Pattern {
 #define RAINBOW_SPEED 0.02
 class RainbowPattern : public Pattern {
     public:
-        void update() override;
-        void transitionIn() override;
-        void transitionOut() override;
         void getPixel(int pixelIndex, HSVColor* result) override;
 };
 #endif

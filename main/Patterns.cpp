@@ -20,11 +20,6 @@ SolidPattern::SolidPattern(HSVColor color) {
     this->setColor(color);
 }
 
-void SolidPattern::update() {}
-
-void SolidPattern::transitionIn() {}
-void SolidPattern::transitionOut() {}
-
 void SolidPattern::getPixel(int pixelIndex, HSVColor* result) {
     *result = this->getColor();
 }
@@ -127,9 +122,6 @@ void FirePattern::getPixel(int pixelIndex, HSVColor* result) {
 ProbePattern::ProbePattern(HSVColor color) {
     this->color = color;
 }
-void ProbePattern::update() {}
-void ProbePattern::transitionIn() {}
-void ProbePattern::transitionOut() {}
 void ProbePattern::getPixel(int pixelIndex, HSVColor* result) {
     int ledCount = Pattern::getLEDCount();
 
@@ -141,9 +133,6 @@ void ProbePattern::getPixel(int pixelIndex, HSVColor* result) {
     result->value = this->color.value / abundance;
 }
 
-void RainbowPattern::update() {}
-void RainbowPattern::transitionIn() {}
-void RainbowPattern::transitionOut() {}
 void RainbowPattern::getPixel(int pixelIndex, HSVColor* result) {
     int ledCount = Pattern::getLEDCount();
 
