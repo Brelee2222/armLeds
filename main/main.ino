@@ -1,5 +1,6 @@
 #include "Patterns.h"
 #include "HSVTune.h"
+#include "LEDControl.h"
 
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
@@ -12,28 +13,18 @@
 
 #define BRIGHTNESS 230
 
-#define frameDelay 10
-
-Pattern* patterns[4] = {
-    new SolidPattern(HSVColor(0, 255, 255)),
-    new FirePattern(HSVColor(7281, 254, 255), HSVColor(0, 255, 15)),
-    new ProbePattern(HSVColor(0, 255, 255)),
-    new RainbowPattern()
-};
-
-Pattern& currentPattern = *patterns[0];
+#define FRAME_DELAY 10
 
 Adafruit_NeoPixel leds(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 void setup()
 {
+    LEDSelection::begin();
     Pattern::setLEDCount(LED_COUNT);
 
     HSVTune::begin();
 
     leds.begin();
-
-    currentPattern.transitionIn();
     
     Serial.begin(9600);
 }
@@ -47,9 +38,10 @@ void loop()
 
     // free(ptr);
 
+    LEDSelection::update();
     HSVTune::update();
 
-    currentPattern.update();
+    Pattern& currentPattern = LEDSelection::currentPattern;
 
     HSVColor hsvModifier = HSVTune::getColorModifier();
     HSVColor pixelPatterColor;
@@ -65,5 +57,5 @@ void loop()
     if(leds.canShow())
         leds.show();
 
-    delay(frameDelay);
+    delay(FRAME_DELAY);
 }
