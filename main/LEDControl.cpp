@@ -23,6 +23,7 @@ Pattern* patterns[PATTERNS_SIZE] = {
 
 unsigned char selectedPatternIndex = 0;
 unsigned char selectedColorModIndex = 0;
+unsigned char selectedBrightness = 3;
 
 LEDMenu::LEDMenu() {
     this->parent = LEDMenu::currentMenu;
@@ -40,10 +41,8 @@ LEDMenu* LEDMenu::currentMenu = new PatternSelectionMenu();
 
 void PatternSelectionMenu::display() {}
 void PatternSelectionMenu::update() {
-    if(SwitchInterface::updateBit(3)) {
+    if(SwitchInterface::updateBit(3))
         new ColorModifierMenu();
-        return;
-    }
 
     char currentPatternIndex = SwitchInterface::getBitsValue(3);
     if(currentPatternIndex < PATTERNS_SIZE && selectedPatternIndex != currentPatternIndex) {
@@ -58,8 +57,21 @@ void PatternSelectionMenu::transitionPattern(char newPaternIndex) {
     patterns[selectedPatternIndex = newPaternIndex]->transitionIn();
 }
 
-void ColorModifierMenu::display() {}
+void ColorModifierMenu::display() {
+    if(SwitchInterface::updateBit(2))
+        new ColorModifierMenu();
+
+    leds.setPixelColor(LED_COUNT - 1, 0x0000ff);
+    leds.setPixelColor(LED_COUNT - 3, 0xff0000);
+    leds.setPixelColor(LED_COUNT - 5, 0xff00ff);
+
+    leds.setPixelColor(LED_COUNT - 2, selectedColorModIndex == 2 ? 0xaaaaaa : 0);
+    leds.setPixelColor(LED_COUNT - 4, selectedColorModIndex == 1 ? 0xaaaaaa : 0);
+    leds.setPixelColor(LED_COUNT - 6, selectedColorModIndex == 0 ? 0xaaaaaa : 0);
+}
 void ColorModifierMenu::update() {
+    if(SwitchInterface::updateBit(2))
+        new BrightnessMenu();
     char currentColorModIndex = SwitchInterface::getBitsValue(2);
 
     if(selectedColorModIndex != currentColorModIndex) {
@@ -67,6 +79,20 @@ void ColorModifierMenu::update() {
     }
 
     if(SwitchInterface::updateBit(3))
+        this->back();
+}
+
+void BrightnessMenu::display() {
+    
+}
+void BrightnessMenu::update() {
+    char currentBrightness = SwitchInterface::getBitsValue(2);
+
+    if(selectedBrightness != currentBrightness) {
+        selectedBrightness = currentBrightness;
+    }
+
+    if(SwitchInterface::updateBit(2))
         this->back();
 }
 
@@ -99,6 +125,9 @@ namespace LEDControl {
                 hsvModifier = blueAlliance;
                 break;
         }
+
+        hsvModifier.value = (double) hsvModifier.value / 5 * (2 + selectedBrightness);
+
         HSVColor pixelPatterColor;
 
         Pattern& pattern = *patterns[selectedPatternIndex];
@@ -126,7 +155,7 @@ namespace LEDControl {
 }
 
 namespace SwitchInterface {
-    boolean previousBitValues[PATTERNS_SIZE] = {};
+    // boolean previousBitValues[PATTERNS_SIZE] = {};
 
     void begin() {      
         for(int bitPin : BIT_PINS)
@@ -145,6 +174,7 @@ namespace SwitchInterface {
     }
 
     bool updateBit(int bit) {
-        return previousBitValues[bit] != (previousBitValues[bit] = !digitalRead(BIT_PINS[bit]));
+        // return previousBitValues[bit] != (previousBitValues[bit] = !digitalRead(BIT_PINS[bit]));
+        return !digitalRead(BIT_PINS[bit]);
     }
 }

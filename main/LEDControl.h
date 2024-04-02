@@ -36,6 +36,12 @@ class ColorModifierMenu : public LEDMenu {
         void display() override;
 };
 
+class BrightnessMenu : public LEDMenu {
+    public:
+        void update() override;
+        void display() override;
+};
+
 namespace LEDControl {
     void begin();
 
