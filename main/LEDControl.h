@@ -2,7 +2,7 @@
 
 #define LED_PIN 2
 
-#define LED_COUNT 75
+#define LED_COUNT 80
 
 #define PATTERNS_SIZE 5
 #define COLOR_MOD_SIZE 3

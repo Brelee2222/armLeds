@@ -90,8 +90,6 @@ void ColorModifierMenu::update() {
     }
     char currentColorModIndex = SwitchInterface::getBitsValue(1);
 
-    Serial.println((int) currentColorModIndex);
-
     if(currentColorModIndex <= COLOR_MOD_SIZE && selectedColorModIndex != currentColorModIndex) {
         selectedColorModIndex = currentColorModIndex;
     }
