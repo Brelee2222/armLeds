@@ -74,11 +74,11 @@ void ColorModifierMenu::update() {
         new BrightnessMenu();
     char currentColorModIndex = SwitchInterface::getBitsValue(2);
 
-    if(selectedColorModIndex != currentColorModIndex) {
+    if(currentColorModIndex < 3 && selectedColorModIndex != currentColorModIndex) {
         selectedColorModIndex = currentColorModIndex;
     }
 
-    if(SwitchInterface::updateBit(3))
+    if(!SwitchInterface::updateBit(3))
         this->back();
 }
 
@@ -92,7 +92,7 @@ void BrightnessMenu::update() {
         selectedBrightness = currentBrightness;
     }
 
-    if(SwitchInterface::updateBit(2))
+    if(!SwitchInterface::updateBit(2))
         this->back();
 }
 
