@@ -5,6 +5,7 @@
 #define LED_COUNT 75
 
 #define PATTERNS_SIZE 5
+#define COLOR_MOD_SIZE 3
 
 class LEDMenu {
     public:

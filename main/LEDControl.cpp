@@ -9,8 +9,11 @@
 
 Adafruit_NeoPixel leds(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-const HSVColor redAlliance = HSVColor(0, 255, 230);
-const HSVColor blueAlliance = HSVColor(43690, 255, 230);
+
+const HSVColor COLOR_MODIFIERS[3] = {
+    HSVColor(0, 255, 230),
+    HSVColor(43690, 255, 230)
+};
 
 const int BIT_PINS[4] = {7, 6, 5, 4};
 
@@ -60,19 +63,22 @@ void PatternSelectionMenu::transitionPattern(char newPaternIndex) {
 }
 
 void ColorModifierMenu::display() {
-    if(SwitchInterface::updateBit(2))
-        new ColorModifierMenu();
+    leds.setPixelColor(LED_COUNT - 1, 0xff00ff);
+    leds.setPixelColor(LED_COUNT - 2, 0);
 
-    leds.setPixelColor(LED_COUNT - 1, 0x0000ff);
-    leds.setPixelColor(LED_COUNT - 3, 0xff0000);
-    leds.setPixelColor(LED_COUNT - 5, 0xff00ff);
+    int modifierPixelOffset = 0;
+    for(HSVColor colorMod : COLOR_MODIFIERS) {
+        modifierPixelOffset += 2;
 
-    leds.setPixelColor(LED_COUNT - 2, selectedColorModIndex == 2 ? 0xaaaaaa : 0);
-    leds.setPixelColor(LED_COUNT - 4, selectedColorModIndex == 1 ? 0xaaaaaa : 0);
-    leds.setPixelColor(LED_COUNT - 6, selectedColorModIndex == 0 ? 0xaaaaaa : 0);
+        leds.setPixelColor(LED_COUNT - 1 - modifierPixelOffset, 0xff00ff);
+        leds.setPixelColor(LED_COUNT - 2 - modifierPixelOffset, 0);
+    }
+
+    leds.setPixelColor(LED_COUNT - 2 - 2 * selectedColorModIndex, 0xaaaaaa);
 }
 void ColorModifierMenu::update() {
-    if(!SwitchInterface::updateBit(3)) {
+    // if(!SwitchInterface::updateBit(3)) {
+    if(SwitchInterface::updateBit(3)) {
         this->back();
         return;
     }
@@ -83,7 +89,7 @@ void ColorModifierMenu::update() {
     }
     char currentColorModIndex = SwitchInterface::getBitsValue(2);
 
-    if(currentColorModIndex < 3 && selectedColorModIndex != currentColorModIndex) {
+    if(currentColorModIndex < COLOR_MOD_SIZE && selectedColorModIndex != currentColorModIndex) {
         selectedColorModIndex = currentColorModIndex;
     }
 }
@@ -92,7 +98,8 @@ void BrightnessMenu::display() {
     
 }
 void BrightnessMenu::update() {
-    if(!SwitchInterface::updateBit(2)) {
+    // if(!SwitchInterface::updateBit(2)) {
+    if(SwitchInterface::updateBit(2)) {
         this->back();
         return; 
     }
@@ -121,17 +128,10 @@ namespace LEDControl {
 
     void display() {
         HSVColor hsvModifier;
-        switch(selectedColorModIndex) {
-            case 0:
-                hsvModifier = HSVTune::getColorModifier();
-                break;
-            case 1:
-                hsvModifier = redAlliance;
-                break;
-            case 2:
-                hsvModifier = blueAlliance;
-                break;
-        }
+        if(selectedColorModIndex == 0)
+            hsvModifier = HSVTune::getColorModifier();
+        else
+            hsvModifier = COLOR_MODIFIERS[selectedColorModIndex - 1];
 
         hsvModifier.value = (double) hsvModifier.value / 5 * (2 + selectedBrightness);
 
@@ -181,7 +181,7 @@ namespace SwitchInterface {
     }
 
     bool updateBit(int bit) {
-        // return previousBitValues[bit] != (previousBitValues[bit] = !digitalRead(BIT_PINS[bit]));
-        return !digitalRead(BIT_PINS[bit]);
+        return previousBitValues[bit] != (previousBitValues[bit] = !digitalRead(BIT_PINS[bit]));
+        // return !digitalRead(BIT_PINS[bit]);
     }
 }
