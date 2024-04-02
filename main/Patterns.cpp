@@ -16,9 +16,6 @@ void Pattern::transitionOut() {}
 void Pattern::getPixel(int pixelIndex, HSVColor* result) {}
 int Pattern::ledCount;
 
-void SolidPattern::update() {}
-void SolidPattern::transitionIn() {}
-void SolidPattern::transitionOut() {}
 SolidPattern::SolidPattern(HSVColor color) {
     this->setColor(color);
 }
@@ -65,13 +62,13 @@ void FirePattern::transitionOut() {
 void FirePattern::update() {
     unsigned long deltaTime = millis() - this->lastTime;
     // this->lastTime += deltaTime;
-    this->lastTime = millis(); // possible takes more processing and drain more power
+    this->lastTime = millis(); // It's possible this takes more processing and drains more power
 
     Flare* flares = this->flares;
 
-    double energyLoss = deltaTime / FLARE_LIFESPAN;
+    double energyLoss = deltaTime / FLARE_LIFESPAN; // Energy loss is the same for all flares.
 
-    for(int flareIndex = 0; flareIndex < MAX_FLARES; flareIndex++) {
+    for(int flareIndex = 0; flareIndex < MAX_FLARES; flareIndex++) { // Calculates the new amount of extra energy.
         Flare& flare = flares[flareIndex];
 
         double newFlareEnergy = max(flare.energy - (double) deltaTime / FLARE_LIFESPAN, 0);
@@ -81,7 +78,7 @@ void FirePattern::update() {
         flare.energy = newFlareEnergy;
     }
 
-    for(int flareIndex = 0; flareIndex < MAX_FLARES; flareIndex++) {
+    for(int flareIndex = 0; flareIndex < MAX_FLARES; flareIndex++) { // Gives a random amount of the extra energy to flares without energy, and assigns those flares a position of 0 (the starting position of a flare).
         Flare& flare = flares[flareIndex];
 
         if(0 >= flare.energy) {
@@ -93,8 +90,6 @@ void FirePattern::update() {
         }
 
         flare.position += flare.energy * (double) deltaTime * FLARE_SPEED;
-
-        // Serial.println(flare.position);
     }
 
     this->extraEnergy = max(min(this->extraEnergy, MAX_ENERGY), 0.0);
@@ -105,18 +100,17 @@ void FirePattern::getPixel(int pixelIndex, HSVColor* result) {
 
     Flare* flares = this->flares;
 
-    pixelIndex = ledCount / 2 - abs(pixelIndex - ledCount / 2);
+    pixelIndex = ledCount / 2 - abs(pixelIndex - ledCount / 2); // the pixelIndex is modified so that the fire pattern is mirrored.
 
-    double lightAbundance = 0;
+    double lightAbundance = 0; // light abundance is how much light a pixel is receiving.
 
     for(int flareIndex = 0; flareIndex < MAX_FLARES; flareIndex++) {
         Flare& flare = flares[flareIndex];
 
-        // Serial.println(flare.position);
-
-        lightAbundance += LIGHT_DIFFUSION / (1 + abs((double) pixelIndex - flare.position)) * flare.energy;
+        lightAbundance += LIGHT_DIFFUSION / (1 + abs((double) pixelIndex - flare.position)) * flare.energy; 
     }
 
+    // The calculations are basically a calculation of weighted average.
     result->hue = (this->unlitColor.hue + this->litColor.hue * lightAbundance) / (lightAbundance + 1.0);
     result->saturation = (this->unlitColor.saturation + this->litColor.saturation * lightAbundance) / (lightAbundance + 1.0);
     result->value = (this->unlitColor.value + this->litColor.value * lightAbundance) / (lightAbundance + 1.0);
@@ -125,23 +119,17 @@ void FirePattern::getPixel(int pixelIndex, HSVColor* result) {
 ProbePattern::ProbePattern(HSVColor color) {
     this->color = color;
 }
-void ProbePattern::update() {}
-void ProbePattern::transitionIn() {}
-void ProbePattern::transitionOut() {}
 void ProbePattern::getPixel(int pixelIndex, HSVColor* result) {
     int ledCount = Pattern::getLEDCount();
 
-    int position = (unsigned int) (millis() * PROBE_SPEED) % ledCount;
+    int position = (unsigned int) (millis() * PROBE_SPEED) % ledCount; // There is a cast to uint because floating points cannot be modded 3:
+    
     double abundance = 1.0 + min(abs(pixelIndex - position), abs(abs(pixelIndex - position) - ledCount)) / LIGHT_DIFFUSION;
 
     result->hue = this->color.hue;
     result->saturation = this->color.saturation;
     result->value = this->color.value / abundance;
 }
-
-void RainbowPattern::update() {}
-void RainbowPattern::transitionIn() {}
-void RainbowPattern::transitionOut() {}
 
 void RainbowPattern::getPixel(int pixelIndex, HSVColor* result) {
     int ledCount = Pattern::getLEDCount();
@@ -156,15 +144,12 @@ void RainbowPattern::getPixel(int pixelIndex, HSVColor* result) {
 BlinkPattern::BlinkPattern(HSVColor color) {
     this->color = color;
 }
-void BlinkPattern::update() {}
-void BlinkPattern::transitionIn() {}
-void BlinkPattern::transitionOut() {}
 void BlinkPattern::getPixel(int pixelIndex, HSVColor* result) {
-    if(((int) (millis() / BLINK_FREQUENCY) ^ (pixelIndex)) & 1) {
+
+    if(((int) (millis() / BLINK_FREQUENCY) ^ (pixelIndex)) & 1) { // This calculation uses a heavy amount of bitwises; it is basically divides milliseconds by frequency, adds the pixel index then sees if the result is divisible by 2.
         result->hue = this->color.hue;
         result->saturation = this->color.saturation;
         result->value = this->color.value;
-
         return;
     }
 

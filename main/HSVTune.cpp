@@ -18,33 +18,35 @@ HSVColor::HSVColor() {};
 namespace HSVTransform {
     void transformColor(HSVColor *color, HSVColor transform) {
         
-        // Serial.println(transform.hue);
+        color->hue += transform.hue; // Adds the hues together.
 
-        color->hue += transform.hue;
-        // newColor.saturation = sqrt(color.saturation * transform.saturation);
-        // newColor.saturation = min(color.saturation, transform.saturation);
-        color->saturation *= transform.saturation / 255.0;
-        // newColor.value = sqrt(color.value * transform.value);
-        // newColor.value = min(color.value, transform.value);
-        color->value *= transform.value / 255.0;
+        color->saturation *= transform.saturation / 255.0; // Multiplies the saturations then divides by 255.
+
+        color->value *= transform.value / 255.0; // Multplies the values then divides by 255.
     }
 }
 
 namespace HSVTune {
     short hueOffset = 0;
+
+    // These values are the HSV values that are affected be the transition halflife.
     float hue = 0;
     float sat = 0;
     float val = 0;
 
     void begin() {
+
+        // Sets the pin mode for the pins (with PULL_UP)
         pinMode(HUE_PIN, INPUT_PULLUP);
         pinMode(SAT_PIN, INPUT_PULLUP);
         pinMode(VAL_PIN, INPUT_PULLUP);
 
-        if(USE_HUE_OFFSET)
+
+        if(USE_HUE_OFFSET) // sets the hueOffset if it is being used.
             hueOffset = ((double) (analogRead(HUE_PIN) - 7) / 200.0 * 255) * (1 << 8);
     }
 
+    // Used to calculate deltaTime which transitions the HSV values.
     long previousTime = 0;
 
     void update() {
