@@ -41,8 +41,10 @@ LEDMenu* LEDMenu::currentMenu = new PatternSelectionMenu();
 
 void PatternSelectionMenu::display() {}
 void PatternSelectionMenu::update() {
-    if(SwitchInterface::updateBit(3))
+    if(SwitchInterface::updateBit(3)) {
         new ColorModifierMenu();
+        return;
+    }
 
     char currentPatternIndex = SwitchInterface::getBitsValue(3);
     if(currentPatternIndex < PATTERNS_SIZE && selectedPatternIndex != currentPatternIndex) {
@@ -70,30 +72,35 @@ void ColorModifierMenu::display() {
     leds.setPixelColor(LED_COUNT - 6, selectedColorModIndex == 0 ? 0xaaaaaa : 0);
 }
 void ColorModifierMenu::update() {
-    if(SwitchInterface::updateBit(2))
+    if(!SwitchInterface::updateBit(3)) {
+        this->back();
+        return;
+    }
+
+    if(SwitchInterface::updateBit(2)) {
         new BrightnessMenu();
+        return;
+    }
     char currentColorModIndex = SwitchInterface::getBitsValue(2);
 
     if(currentColorModIndex < 3 && selectedColorModIndex != currentColorModIndex) {
         selectedColorModIndex = currentColorModIndex;
     }
-
-    if(!SwitchInterface::updateBit(3))
-        this->back();
 }
 
 void BrightnessMenu::display() {
     
 }
 void BrightnessMenu::update() {
+    if(!SwitchInterface::updateBit(2)) {
+        this->back();
+        return; 
+    }
     char currentBrightness = SwitchInterface::getBitsValue(2);
 
     if(selectedBrightness != currentBrightness) {
         selectedBrightness = currentBrightness;
     }
-
-    if(!SwitchInterface::updateBit(2))
-        this->back();
 }
 
 namespace LEDControl {
