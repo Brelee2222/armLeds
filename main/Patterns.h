@@ -98,4 +98,19 @@ class RainbowPattern : public Pattern {
 
         void update() override;
 };
+
+#define BLINK_FREQUENCY 500
+class BlinkPattern : public Pattern {
+    public:
+        BlinkPattern(HSVColor color);
+
+        void getPixel(int pixelIndex, HSVColor* result) override;
+
+        void transitionIn() override;
+        void transitionOut() override;
+
+        void update() override;
+    private:
+        HSVColor color;
+};
 #endif

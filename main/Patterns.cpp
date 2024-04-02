@@ -152,3 +152,21 @@ void RainbowPattern::getPixel(int pixelIndex, HSVColor* result) {
     result->saturation = 255;
     result->value = 255;
 }
+
+BlinkPattern::BlinkPattern(HSVColor color) {
+    this->color = color;
+}
+void BlinkPattern::update() {}
+void BlinkPattern::transitionIn() {}
+void BlinkPattern::transitionOut() {}
+void BlinkPattern::getPixel(int pixelIndex, HSVColor* result) {
+    if(((int) (millis() / BLINK_FREQUENCY) ^ (pixelIndex)) & 1) {
+        result->hue = this->color.hue;
+        result->saturation = this->color.saturation;
+        result->value = this->color.value;
+
+        return;
+    }
+
+    result->hue = result->saturation = result->value = 0;
+}

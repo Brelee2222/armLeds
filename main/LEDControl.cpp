@@ -18,7 +18,8 @@ Pattern* patterns[PATTERNS_SIZE] = {
     new SolidPattern(HSVColor(0, 255, 255)),
     new FirePattern(HSVColor(7281, 254, 255), HSVColor(0, 255, 15)),
     new ProbePattern(HSVColor(0, 255, 255)),
-    new RainbowPattern()
+    new RainbowPattern(),
+    new BlinkPattern(HSVColor(0, 255, 255))
 };
 
 unsigned char selectedPatternIndex = 0;
@@ -48,7 +49,6 @@ void PatternSelectionMenu::update() {
 
     char currentPatternIndex = SwitchInterface::getBitsValue(3);
     if(currentPatternIndex < PATTERNS_SIZE && selectedPatternIndex != currentPatternIndex) {
-        // Serial.println((int) currentPatternIndex);
         selectedPatternIndex = currentPatternIndex;
 
         transitionPattern(selectedPatternIndex);
@@ -162,7 +162,7 @@ namespace LEDControl {
 }
 
 namespace SwitchInterface {
-    // boolean previousBitValues[PATTERNS_SIZE] = {};
+    boolean previousBitValues[PATTERNS_SIZE] = {};
 
     void begin() {      
         for(int bitPin : BIT_PINS)
