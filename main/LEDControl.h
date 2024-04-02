@@ -4,19 +4,30 @@
 
 #define LED_COUNT 75
 
+#define PATTERNS_SIZE 4
+
 class LEDMenu {
     public:
         LEDMenu();
 
         virtual void update();
         virtual void display();
+        static LEDMenu* currentMenu; 
         
     private:
         LEDMenu* parent;
-        static LEDMenu* currentMenu; 
 
     protected:
         static void back();
+};
+
+class PatternSelectionMenu : public LEDMenu {
+    public:
+        void update() override;
+        void display() override;
+
+    private:
+        void transitionPattern(Pattern& newPattern);
 };
 
 namespace LEDControl {
@@ -27,21 +38,10 @@ namespace LEDControl {
     void display();
 }
 
-namespace PatternSelection {
-    // extern Pattern* patterns[4];
-    extern Pattern* patterns[4];
-
-    extern Pattern& currentPattern;
-
-    void begin();
-
-    void update();
-
-    void transitionPattern(Pattern& newPattern);
-}
-
 namespace SwitchInterface {
     void begin();
 
     unsigned char getBitsValue(int bits);
+
+    bool updateBit(int bit);
 }
