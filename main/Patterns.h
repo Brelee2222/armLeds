@@ -27,6 +27,11 @@ class SolidPattern : public Pattern {
 
         HSVColor getColor();
 
+        void transitionIn() override;
+        void transitionOut() override;
+
+        void update() override;
+
     private:
         HSVColor color;
 };
@@ -74,6 +79,11 @@ class ProbePattern : public Pattern {
 
         void getPixel(int pixelIndex, HSVColor* result) override;
 
+        void transitionIn() override;
+        void transitionOut() override;
+
+        void update() override;
+
     private:
         HSVColor color;
 };
@@ -82,5 +92,10 @@ class ProbePattern : public Pattern {
 class RainbowPattern : public Pattern {
     public:
         void getPixel(int pixelIndex, HSVColor* result) override;
+
+        void transitionIn() override;
+        void transitionOut() override;
+
+        void update() override;
 };
 #endif

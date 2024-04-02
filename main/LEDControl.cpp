@@ -9,7 +9,10 @@
 
 Adafruit_NeoPixel leds(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-const int BIT_PINS[4] = {2, 3, 4, 5};
+const HSVColor redAlliance = HSVColor(0, 255, 230);
+const HSVColor blueAlliance = HSVColor(43690, 255, 230);
+
+const int BIT_PINS[4] = {7, 6, 5, 4};
 
 Pattern* patterns[PATTERNS_SIZE] = {
     new SolidPattern(HSVColor(0, 255, 255)),
@@ -18,9 +21,8 @@ Pattern* patterns[PATTERNS_SIZE] = {
     new RainbowPattern()
 };
 
-Pattern& currentPattern = *patterns[1];
-
-unsigned char lastPatternIndex = 0;
+unsigned char selectedPatternIndex = 0;
+unsigned char selectedColorModIndex = 0;
 
 LEDMenu::LEDMenu() {
     this->parent = LEDMenu::currentMenu;
@@ -38,42 +40,71 @@ LEDMenu* LEDMenu::currentMenu = new PatternSelectionMenu();
 
 void PatternSelectionMenu::display() {}
 void PatternSelectionMenu::update() {
+    if(SwitchInterface::updateBit(3)) {
+        new ColorModifierMenu();
+        return;
+    }
+
     char currentPatternIndex = SwitchInterface::getBitsValue(3);
+    if(currentPatternIndex < PATTERNS_SIZE && selectedPatternIndex != currentPatternIndex) {
+        // Serial.println((int) currentPatternIndex);
+        selectedPatternIndex = currentPatternIndex;
 
-    if(lastPatternIndex != currentPatternIndex) {
-        lastPatternIndex = currentPatternIndex;
-
-        if(currentPatternIndex < PATTERNS_SIZE)
-            transitionPattern(*patterns[currentPatternIndex]);
+        transitionPattern(selectedPatternIndex);
     }
 }
-void PatternSelectionMenu::transitionPattern(Pattern& newPattern) {
-    currentPattern.transitionOut();
-    (currentPattern = newPattern).transitionIn();
+void PatternSelectionMenu::transitionPattern(char newPaternIndex) {
+    patterns[selectedPatternIndex]->transitionOut();
+    patterns[selectedPatternIndex = newPaternIndex]->transitionIn();
+}
+
+void ColorModifierMenu::display() {}
+void ColorModifierMenu::update() {
+    char currentColorModIndex = SwitchInterface::getBitsValue(2);
+
+    if(selectedColorModIndex != currentColorModIndex) {
+        selectedColorModIndex = currentColorModIndex;
+    }
+
+    if(SwitchInterface::updateBit(3))
+        this->back();
 }
 
 namespace LEDControl {
     void begin() {
+        patterns[selectedPatternIndex]->transitionIn();
         leds.begin();
 
         HSVTune::begin();
         SwitchInterface::begin();
         Pattern::setLEDCount(LED_COUNT);
-
-        currentPattern.transitionIn();
     }
 
     void update() {
         HSVTune::update();
         LEDMenu::currentMenu->update();
+        patterns[selectedPatternIndex]->update();
     }
 
     void display() {
-        HSVColor hsvModifier = HSVTune::getColorModifier();
+        HSVColor hsvModifier;
+        switch(selectedColorModIndex) {
+            case 0:
+                hsvModifier = HSVTune::getColorModifier();
+                break;
+            case 1:
+                hsvModifier = redAlliance;
+                break;
+            case 2:
+                hsvModifier = blueAlliance;
+                break;
+        }
         HSVColor pixelPatterColor;
 
+        Pattern& pattern = *patterns[selectedPatternIndex];
+
         for(int ledIndex = LED_COUNT; ledIndex >= 0; ledIndex--) {
-            currentPattern.getPixel(ledIndex, &pixelPatterColor);
+            pattern.getPixel(ledIndex, &pixelPatterColor);
 
             HSVTransform::transformColor(&pixelPatterColor, hsvModifier);
 
@@ -105,8 +136,10 @@ namespace SwitchInterface {
     unsigned char getBitsValue(int bits) {
         unsigned char bitsValue = 0;
          
-        for(int bitsPinIndex = 0; bitsPinIndex < bits; bitsPinIndex++)
-            bitsValue = (bitsValue << 1) & !digitalRead(BIT_PINS[bitsPinIndex]);
+        for(int bitsPinIndex = bits; bitsPinIndex >= 0; bitsPinIndex--) {
+            // Serial.println((int) !digitalRead(BIT_PINS[bitsPinIndex]));
+            bitsValue = (bitsValue << 1) | !digitalRead(BIT_PINS[bitsPinIndex]);
+        }
 
         return bitsValue;
     }

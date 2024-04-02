@@ -16,6 +16,9 @@ void Pattern::transitionOut() {}
 void Pattern::getPixel(int pixelIndex, HSVColor* result) {}
 int Pattern::ledCount;
 
+void SolidPattern::update() {}
+void SolidPattern::transitionIn() {}
+void SolidPattern::transitionOut() {}
 SolidPattern::SolidPattern(HSVColor color) {
     this->setColor(color);
 }
@@ -54,9 +57,9 @@ void FirePattern::transitionIn() {
 }
 
 void FirePattern::transitionOut() {
-    free(this->flares);
-    free(&this->extraEnergy);
-    free(&this->lastTime);
+    // free(this->flares);
+    // free(&this->extraEnergy);
+    // free(&this->lastTime);
 }
 
 void FirePattern::update() {
@@ -122,6 +125,9 @@ void FirePattern::getPixel(int pixelIndex, HSVColor* result) {
 ProbePattern::ProbePattern(HSVColor color) {
     this->color = color;
 }
+void ProbePattern::update() {}
+void ProbePattern::transitionIn() {}
+void ProbePattern::transitionOut() {}
 void ProbePattern::getPixel(int pixelIndex, HSVColor* result) {
     int ledCount = Pattern::getLEDCount();
 
@@ -132,6 +138,10 @@ void ProbePattern::getPixel(int pixelIndex, HSVColor* result) {
     result->saturation = this->color.saturation;
     result->value = this->color.value / abundance;
 }
+
+void RainbowPattern::update() {}
+void RainbowPattern::transitionIn() {}
+void RainbowPattern::transitionOut() {}
 
 void RainbowPattern::getPixel(int pixelIndex, HSVColor* result) {
     int ledCount = Pattern::getLEDCount();

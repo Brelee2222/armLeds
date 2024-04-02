@@ -27,7 +27,13 @@ class PatternSelectionMenu : public LEDMenu {
         void display() override;
 
     private:
-        void transitionPattern(Pattern& newPattern);
+        void transitionPattern(char newPaternIndex);
+};
+
+class ColorModifierMenu : public LEDMenu {
+    public:
+        void update() override;
+        void display() override;
 };
 
 namespace LEDControl {
