@@ -12,7 +12,8 @@ Adafruit_NeoPixel leds(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 const HSVColor COLOR_MODIFIERS[3] = {
     HSVColor(0, 255, 230),
-    HSVColor(43690, 255, 230)
+    HSVColor(43690, 255, 230),
+    HSVColor(21845, 255, 230)
 };
 
 const int BIT_PINS[4] = {7, 6, 5, 4};
@@ -50,7 +51,7 @@ void PatternSelectionMenu::update() {
         return;
     }
 
-    char currentPatternIndex = SwitchInterface::getBitsValue(3);
+    char currentPatternIndex = SwitchInterface::getBitsValue(2);
     if(currentPatternIndex < PATTERNS_SIZE && selectedPatternIndex != currentPatternIndex) {
         selectedPatternIndex = currentPatternIndex;
 
@@ -70,7 +71,7 @@ void ColorModifierMenu::display() {
     for(HSVColor colorMod : COLOR_MODIFIERS) {
         modifierPixelOffset += 2;
 
-        leds.setPixelColor(LED_COUNT - 1 - modifierPixelOffset, 0xff00ff);
+        leds.setPixelColor(LED_COUNT - 1 - modifierPixelOffset, leds.ColorHSV(colorMod.hue, colorMod.saturation, colorMod.value));
         leds.setPixelColor(LED_COUNT - 2 - modifierPixelOffset, 0);
     }
 
@@ -87,9 +88,11 @@ void ColorModifierMenu::update() {
         new BrightnessMenu();
         return;
     }
-    char currentColorModIndex = SwitchInterface::getBitsValue(2);
+    char currentColorModIndex = SwitchInterface::getBitsValue(1);
 
-    if(currentColorModIndex < COLOR_MOD_SIZE && selectedColorModIndex != currentColorModIndex) {
+    Serial.println((int) currentColorModIndex);
+
+    if(currentColorModIndex <= COLOR_MOD_SIZE && selectedColorModIndex != currentColorModIndex) {
         selectedColorModIndex = currentColorModIndex;
     }
 }
@@ -103,7 +106,7 @@ void BrightnessMenu::update() {
         this->back();
         return; 
     }
-    char currentBrightness = SwitchInterface::getBitsValue(2);
+    char currentBrightness = SwitchInterface::getBitsValue(1);
 
     if(selectedBrightness != currentBrightness) {
         selectedBrightness = currentBrightness;
@@ -162,11 +165,14 @@ namespace LEDControl {
 }
 
 namespace SwitchInterface {
-    boolean previousBitValues[PATTERNS_SIZE] = {};
+    bool previousBitValues[PATTERNS_SIZE] = {};
 
     void begin() {      
-        for(int bitPin : BIT_PINS)
+        int bitPinIndex = 0;
+        for(int bitPin : BIT_PINS) {
             pinMode(bitPin, INPUT_PULLUP);
+            previousBitValues[bitPinIndex++] = !digitalRead(bitPin);
+        }
     }
 
     unsigned char getBitsValue(int bits) {

@@ -3,7 +3,7 @@
 #define FRAME_DELAY 10
 
 void setup() {
-    // Serial.begin(9600);
+    Serial.begin(9600);
 
     LEDControl::begin();
 }
