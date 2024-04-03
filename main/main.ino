@@ -14,7 +14,7 @@ void loop() {
     // Serial.println((int) ptr);
 
     // free(ptr);
-
+    // delay(1000);
     LEDControl::update();
 
     LEDControl::display();

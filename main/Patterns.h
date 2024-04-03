@@ -127,7 +127,6 @@ class FirePattern : public Pattern {
         FirePattern(HSVColor litColor, HSVColor unlitColor);
 
         void transitionIn() override;
-        void transitionOut() override;
 
         void update() override;
 

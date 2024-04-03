@@ -20,6 +20,8 @@ const HSVColor COLOR_MODIFIERS[3] = {
 
 /**
  * @brief list of patterns
+ * 
+ * @bug When you switch to FirePattern, then switch to ProbePattern, the code crashes. However, when you swap the indexes of RainbowPattern and ProbePattern, RainbowPattern will also crash the code.
 */
 Pattern* patterns[PATTERNS_SIZE] = {
     new SolidPattern(HSVColor(0, 255, 255)),
@@ -37,7 +39,7 @@ unsigned char selectedPatternIndex = 0;
 /**
  * @brief selected color modifier 
 */
-unsigned char selectedColorModIndex = 0;
+unsigned char selectedColorModIndex = 1;
 
 /**
  * @brief selected brightness 
@@ -72,7 +74,9 @@ void PatternSelectionMenu::update() {
 }
 void PatternSelectionMenu::transitionPattern(char newPaternIndex) {
     patterns[selectedPatternIndex]->transitionOut();
-    patterns[selectedPatternIndex = newPaternIndex]->transitionIn();
+    selectedPatternIndex = newPaternIndex;
+    patterns[newPaternIndex]->transitionIn();
+    // selectedPatternIndex = newPaternIndex;
 }
 
 void ColorModifierMenu::display() {
@@ -151,10 +155,12 @@ namespace LEDControl {
 
         HSVColor pixelPatterColor;
 
-        Pattern& pattern = *patterns[selectedPatternIndex];
+        // Pattern& pattern = *patterns[selectedPatternIndex];
 
         for(int ledIndex = LED_COUNT; ledIndex >= 0; ledIndex--) {
-            pattern.getPixel(ledIndex, &pixelPatterColor);
+            // pattern.getPixel(ledIndex, &pixelPatterColor);
+
+            patterns[selectedPatternIndex]->getPixel(ledIndex, &pixelPatterColor);
 
             HSVTransform::transformColor(&pixelPatterColor, hsvModifier);
 

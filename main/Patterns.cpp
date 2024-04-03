@@ -52,12 +52,11 @@ void FirePattern::transitionIn() {
         flares.energy = flares.position = 0;
     }
 }
-
-void FirePattern::transitionOut() {
-    // free(this->flares);
-    // free(&this->extraEnergy);
-    // free(&this->lastTime);
-}
+// void FirePattern::transitionOut() {
+//     // free(this->flares);
+//     // free(&this->extraEnergy);
+//     // free(&this->lastTime);
+// }
 
 void FirePattern::update() {
     unsigned long deltaTime = millis() - this->lastTime;
