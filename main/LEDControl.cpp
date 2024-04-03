@@ -188,4 +188,8 @@ namespace SwitchInterface {
         return previousBitValues[bit] != (previousBitValues[bit] = !digitalRead(BIT_PINS[bit]));
         // return !digitalRead(BIT_PINS[bit]);
     }
+
+    bool getBit(int bit) {
+        return previousBitValues[bit];
+    }
 }
