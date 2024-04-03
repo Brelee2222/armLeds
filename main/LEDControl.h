@@ -105,13 +105,26 @@ namespace LEDControl {
 
 /**
  * @brief The switch interface creates a simple way to control things using a DIP switch.
+ * 
+ * @note The interface is currently mainly being used to detect changes in values.
 */
 namespace SwitchInterface {
     void begin();
 
+    /**
+     * @brief stores the values read off of the pins assigned to the bits starting at 0 to the given bit into a byte/char. It reads the bits starting at 0 to the given bit and stores it into a byte.
+    */
     unsigned char getBitsValue(int bits);
 
+    /**
+     * @brief updates the a given bit.
+     * 
+     * @returns a boolean for whether the bit has changed or not.
+    */
     bool updateBit(int bit);
 
+    /**
+     * @brief returns the value currently being read from the pin assigned to the given bit.
+    */
     bool getBit(int bit);
 }

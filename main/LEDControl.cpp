@@ -9,15 +9,18 @@
 
 Adafruit_NeoPixel leds(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-
+/**
+ * @brief List of color modifiers not including the HSVTune.
+*/
 const HSVColor COLOR_MODIFIERS[3] = {
     HSVColor(0, 255, 230),
     HSVColor(43690, 255, 230),
     HSVColor(21845, 255, 230)
 };
 
-const int BIT_PINS[4] = {7, 6, 5, 4};
-
+/**
+ * @brief list of patterns
+*/
 Pattern* patterns[PATTERNS_SIZE] = {
     new SolidPattern(HSVColor(0, 255, 255)),
     new FirePattern(HSVColor(7281, 254, 255), HSVColor(0, 255, 15)),
@@ -26,36 +29,45 @@ Pattern* patterns[PATTERNS_SIZE] = {
     new BlinkPattern(HSVColor(0, 255, 255))
 };
 
+/**
+ * @brief selected pattern 
+*/
 unsigned char selectedPatternIndex = 0;
+
+/**
+ * @brief selected color modifier 
+*/
 unsigned char selectedColorModIndex = 0;
+
+/**
+ * @brief selected brightness 
+*/
 unsigned char selectedBrightness = 3;
 
 LEDMenu::LEDMenu() {
-    this->parent = LEDMenu::currentMenu;
+    this->parent = LEDMenu::currentMenu; // Sets the parent of the menu to current menu
 
-    LEDMenu::currentMenu = this;
+    LEDMenu::currentMenu = this; // Sets the current menu to the menu
 }
 void LEDMenu::back() {
     LEDMenu* menu = LEDMenu::currentMenu;
 
-    LEDMenu::currentMenu = menu->parent;
+    LEDMenu::currentMenu = menu->parent; // makes the current menu the parent
 
-    delete menu;
+    delete menu; // deletes the menu
 }
 LEDMenu* LEDMenu::currentMenu = new PatternSelectionMenu();
 
 void PatternSelectionMenu::display() {}
 void PatternSelectionMenu::update() {
-    if(SwitchInterface::updateBit(3)) {
+    if(SwitchInterface::updateBit(3)) { // checks if bit 3 has been changed
         new ColorModifierMenu();
         return;
     }
 
-    char currentPatternIndex = SwitchInterface::getBitsValue(2);
+    char currentPatternIndex = SwitchInterface::getBitsValue(2); // Gets a value from the switch.
     if(currentPatternIndex < PATTERNS_SIZE && selectedPatternIndex != currentPatternIndex) {
-        selectedPatternIndex = currentPatternIndex;
-
-        transitionPattern(selectedPatternIndex);
+        transitionPattern(currentPatternIndex);
     }
 }
 void PatternSelectionMenu::transitionPattern(char newPaternIndex) {
@@ -113,7 +125,8 @@ void BrightnessMenu::update() {
 
 namespace LEDControl {
     void begin() {
-        patterns[selectedPatternIndex]->transitionIn();
+        patterns[selectedPatternIndex]->transitionIn(); // initializes the starting pattern
+
         leds.begin();
 
         HSVTune::begin();
@@ -126,7 +139,7 @@ namespace LEDControl {
         LEDMenu::currentMenu->update();
         patterns[selectedPatternIndex]->update();
     }
-
+    
     void display() {
         HSVColor hsvModifier;
         if(selectedColorModIndex == 0)
@@ -162,6 +175,11 @@ namespace LEDControl {
     }
 }
 
+/**
+ * @brief list of pins assigned to bits.
+*/
+const int BIT_PINS[4] = {7, 6, 5, 4};
+
 namespace SwitchInterface {
     bool previousBitValues[PATTERNS_SIZE] = {};
 
@@ -185,11 +203,11 @@ namespace SwitchInterface {
     }
 
     bool updateBit(int bit) {
-        return previousBitValues[bit] != (previousBitValues[bit] = !digitalRead(BIT_PINS[bit]));
+        return previousBitValues[bit] != (previousBitValues[bit] = getBit(bit));
         // return !digitalRead(BIT_PINS[bit]);
     }
 
     bool getBit(int bit) {
-        return previousBitValues[bit];
+        return !digitalRead(BIT_PINS[bit]);
     }
 }
