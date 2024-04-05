@@ -80,7 +80,8 @@ void PatternSelectionMenu::transitionPattern(char newPaternIndex) {
 }
 
 void ColorModifierMenu::display() {
-    leds.setPixelColor(LED_COUNT - 1, 0xff00ff);
+    HSVColor tuneColor = HSVTune::getColorModifier();
+    leds.setPixelColor(LED_COUNT - 1, leds.ColorHSV(tuneColor.hue, tuneColor.saturation, tuneColor.value));
     leds.setPixelColor(LED_COUNT - 2, 0);
 
     int modifierPixelOffset = 0;
@@ -96,6 +97,11 @@ void ColorModifierMenu::display() {
 void ColorModifierMenu::update() {
     // if(!SwitchInterface::updateBit(3)) {
     if(SwitchInterface::updateBit(3)) {
+        char currentColorModIndex = SwitchInterface::getBitsValue(1);
+        
+        if(currentColorModIndex <= COLOR_MOD_SIZE && selectedColorModIndex != currentColorModIndex) {
+            selectedColorModIndex = currentColorModIndex;
+        }
         this->back();
         return;
     }
@@ -103,11 +109,6 @@ void ColorModifierMenu::update() {
     if(SwitchInterface::updateBit(2)) {
         new BrightnessMenu();
         return;
-    }
-    char currentColorModIndex = SwitchInterface::getBitsValue(1);
-
-    if(currentColorModIndex <= COLOR_MOD_SIZE && selectedColorModIndex != currentColorModIndex) {
-        selectedColorModIndex = currentColorModIndex;
     }
 }
 
