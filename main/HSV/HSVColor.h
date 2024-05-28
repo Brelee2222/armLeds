@@ -1,7 +1,7 @@
 struct HSVColor {
-    const unsigned short hue;
-    const unsigned char saturation;
-    const unsigned char value;
+    unsigned short hue;
+    unsigned char saturation;
+    unsigned char value;
 
     HSVColor(
         unsigned short hue,
@@ -9,7 +9,6 @@ struct HSVColor {
         unsigned char value
     );
 
-    HSVColor();
-
-    
+    // transforms the color by another color and stores it in result
+    void transform(HSVColor* color, HSVColor* result);
 };
