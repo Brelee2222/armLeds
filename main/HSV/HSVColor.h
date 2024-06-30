@@ -1,3 +1,5 @@
+#pragma once
+
 struct HSVColor {
     unsigned short hue;
     unsigned char saturation;
