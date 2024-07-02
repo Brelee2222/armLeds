@@ -14,3 +14,5 @@ struct HSVColor {
     // transforms the color by another color and stores it in result
     void transform(HSVColor* color, HSVColor* result);
 };
+
+#define HSVColor() HSVColor(0,0,0)

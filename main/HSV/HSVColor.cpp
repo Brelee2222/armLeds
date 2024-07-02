@@ -2,6 +2,8 @@
 
 struct HSVColor;
 
+#undef HSVColor()
+
 HSVColor::HSVColor(
     unsigned short hue,
     unsigned char saturation,
@@ -12,8 +14,6 @@ HSVColor::HSVColor(
     value(value)
 {
 }
-
-#define HSVColor() (0,0,0)
 
 void HSVColor::transform(HSVColor* color, HSVColor* result) {
     result->hue = this->hue + color->hue;

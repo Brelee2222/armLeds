@@ -1,13 +1,8 @@
-#pragma once
+#include <Adafruit_NeoPixel.h>
 
-#include "Pattern.h"
 #include "../HSV/HSVColor.h"
 
-#define data_pin 12
-
-PROGMEM const int LED_COUNT = 80;
-
-void begin();
+#define LED_PIN 12
 
 void update();
 
