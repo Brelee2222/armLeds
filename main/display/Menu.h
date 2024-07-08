@@ -2,13 +2,14 @@
 
 class Menu {
     public:
+        static Menu* currentMenu;
+
+        Menu();
+
         virtual void update();
         virtual void display(Adafruit_NeoPixel* leds);
-        void back();
-        void openMenu(Menu* menu);
+        static void back();
 
     private:
-        Menu* previousMenu;
+        Menu* parentMenu;
 };
-
-Menu* currentMenu;

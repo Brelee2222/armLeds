@@ -12,7 +12,7 @@ void update() {
 
     currentPattern->update(time);
 
-    currentMenu->update();
+    Menu::currentMenu->update();
 
     lastTime = time;
 }
@@ -26,5 +26,5 @@ void display() {
         leds.setPixelColor(pixelIndex, leds.ColorHSV(pixelColor.hue, pixelColor.saturation, pixelColor.value));
     }
 
-    currentMenu->display(&leds);
+    Menu::currentMenu->display(&leds);
 }

@@ -1,3 +1,5 @@
+#include "../HSV/HSVColor.h"
+
 PROGMEM const int LED_COUNT = 80;
 
 class Pattern {
